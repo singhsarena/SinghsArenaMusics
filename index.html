@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Desi Live Music</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #070707;
+      color: white;
+      min-height: 100vh;
+    }
+
+    /* ================= HEADER ================= */
+
+    header {
+      height: 70px;
+      padding: 0 7%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      background: rgba(5, 5, 5, 0.95);
+      border-bottom: 1px solid #222;
+
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-size: 25px;
+      font-weight: 800;
+    }
+
+    .logo span {
+      color: #ff3131;
+    }
+
+    nav {
+      display: flex;
+      gap: 28px;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #aaa;
+      font-size: 14px;
+      transition: 0.2s;
+    }
+
+    nav a:hover {
+      color: #ff3131;
+    }
+
+    /* ================= HERO ================= */
+
+    .hero {
+      min-height: 560px;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      text-align: center;
+
+      padding: 50px 20px;
+
+      background:
+        linear-gradient(
+          rgba(0,0,0,0.55),
+          rgba(0,0,0,0.92)
+        ),
+        url("https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1800&q=80");
+
+      background-size: cover;
+      background-position: center;
+    }
+
+    .live-badge {
+      padding: 9px 18px;
+
+      background: rgba(20,20,20,0.9);
+
+      border: 1px solid #333;
+
+      border-radius: 30px;
+
+      font-size: 12px;
+      font-weight: bold;
+
+      margin-bottom: 25px;
+    }
+
+    .live-dot {
+      display: inline-block;
+
+      width: 8px;
+      height: 8px;
+
+      background: red;
+
+      border-radius: 50%;
+
+      margin-right: 7px;
+
+      box-shadow: 0 0 12px red;
+
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    .hero h1 {
+      font-size: clamp(40px, 7vw, 80px);
+      line-height: 1.05;
+    }
+
+    .hero h1 span {
+      color: #ff3131;
+    }
+
+    .hero p {
+      color: #aaa;
+      margin-top: 20px;
+      font-size: 16px;
+    }
+
+    .main-play {
+      margin-top: 35px;
+
+      border: none;
+
+      padding: 17px 35px;
+
+      border-radius: 50px;
+
+      background: #ff3131;
+
+      color: white;
+
+      font-weight: bold;
+
+      cursor: pointer;
+
+      transition: 0.25s;
+    }
+
+    .main-play:hover {
+      transform: scale(1.07);
+      box-shadow: 0 0 30px rgba(255,49,49,0.4);
+    }
+
+    /* ================= PLAYER ================= */
+
+    .player {
+      width: min(1000px, 90%);
+
+      margin: -70px auto 70px;
+
+      padding: 35px;
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 45px;
+
+      background: #111;
+
+      border: 1px solid #292929;
+
+      border-radius: 25px;
+
+      position: relative;
+
+      z-index: 5;
+    }
+
+    .album {
+      width: 290px;
+      height: 290px;
+
+      flex-shrink: 0;
+    }
+
+    .album img {
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+
+      border-radius: 20px;
+
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    }
+
+    .song-info {
+      flex: 1;
+    }
+
+    .now-playing {
+      color: #ff3131;
+
+      font-size: 11px;
+
+      font-weight: bold;
+
+      letter-spacing: 1px;
+    }
+
+    .song-info h2 {
+      font-size: 32px;
+
+      margin-top: 15px;
+    }
+
+    .artist {
+      color: #888;
+
+      margin-top: 7px;
+    }
+
+    /* ================= PROGRESS ================= */
+
+    .progress-area {
+      display: flex;
+
+      align-items: center;
+
+      gap: 10px;
+
+      margin-top: 35px;
+
+      color: #777;
+
+      font-size: 11px;
+    }
+
+    #progress {
+      flex: 1;
+
+      accent-color: #ff3131;
+
+      cursor: pointer;
+    }
+
+    /* ================= CONTROLS ================= */
+
+    .controls {
+      display: flex;
+
+      justify-content: center;
+
+      align-items: center;
+
+      gap: 28px;
+
+      margin-top: 25px;
+    }
+
+    .controls button {
+      border: none;
+
+      background: none;
+
+      color: white;
+
+      font-size: 22px;
+
+      cursor: pointer;
+    }
+
+    .controls button:hover {
+      color: #ff3131;
+    }
+
+    .play-button {
+      width: 62px;
+      height: 62px;
+
+      border-radius: 50% !important;
+
+      background: #ff3131 !important;
+
+      color: white !important;
+
+      font-size: 22px !important;
+    }
+
+    /* ================= VOLUME ================= */
+
+    .volume {
+      display: flex;
+
+      align-items: center;
+
+      gap: 10px;
+
+      margin-top: 20px;
+    }
+
+    #volume {
+      width: 130px;
+
+      accent-color: #ff3131;
+    }
+
+    /* ================= PLAYLIST ================= */
+
+    .playlist {
+      width: min(1000px, 90%);
+
+      margin: auto;
+    }
+
+    .playlist h2 {
+      margin-bottom: 25px;
+    }
+
+    .song {
+      display: flex;
+
+      align-items: center;
+
+      gap: 18px;
+
+      padding: 13px 15px;
+
+      margin-bottom: 10px;
+
+      background: #111;
+
+      border: 1px solid #222;
+
+      border-radius: 12px;
+
+      cursor: pointer;
+
+      transition: 0.2s;
+    }
+
+    .song:hover {
+      background: #191919;
+
+      transform: translateX(5px);
+    }
+
+    .song.active {
+      border-color: #ff3131;
+    }
+
+    .song-number {
+      width: 25px;
+
+      color: #666;
+
+      text-align: center;
+    }
+
+    .song img {
+      width: 55px;
+      height: 55px;
+
+      object-fit: cover;
+
+      border-radius: 8px;
+    }
+
+    .song-details {
+      flex: 1;
+    }
+
+    .song-details h3 {
+      font-size: 15px;
+    }
+
+    .song-details p {
+      color: #777;
+
+      font-size: 12px;
+
+      margin-top: 5px;
+    }
+
+    .song-play {
+      color: #888;
+
+      font-size: 18px;
+    }
+
+    /* ================= ABOUT ================= */
+
+    .about {
+      width: min(900px, 90%);
+
+      margin: 100px auto;
+
+      text-align: center;
+    }
+
+    .about h2 {
+      margin-bottom: 15px;
+    }
+
+    .about p {
+      color: #888;
+
+      line-height: 1.7;
+    }
+
+    /* ================= FOOTER ================= */
+
+    footer {
+      border-top: 1px solid #222;
+
+      text-align: center;
+
+      padding: 30px;
+
+      color: #666;
+
+      margin-top: 80px;
+    }
+
+    /* ================= HIDDEN YOUTUBE ================= */
+
+    #youtube-player {
+      position: fixed;
+
+      width: 1px;
+      height: 1px;
+
+      opacity: 0;
+
+      pointer-events: none;
+
+      left: -100px;
+      bottom: -100px;
+    }
+
+    /* ================= MOBILE ================= */
+
+    @media (max-width: 700px) {
+
+      header {
+        padding: 0 20px;
+      }
+
+      nav {
+        gap: 14px;
+      }
+
+      nav a {
+        font-size: 12px;
+      }
+
+      .hero {
+        min-height: 500px;
+      }
+
+      .player {
+        width: 92%;
+
+        margin-top: -40px;
+
+        flex-direction: column;
+
+        padding: 25px;
+
+        gap: 25px;
+      }
+
+      .album {
+        width: 230px;
+        height: 230px;
+      }
+
+      .song-info {
+        width: 100%;
+      }
+
+      .song-info h2 {
+        font-size: 25px;
+      }
+
+      .playlist {
+        width: 92%;
+      }
+
+      .song {
+        gap: 10px;
+      }
+
+      .song img {
+        width: 48px;
+        height: 48px;
+      }
+
+    }
+  </style>
+</head>
+
+
+<body>
+
+  <!-- ================= HEADER ================= -->
+
+  <header>
+
+    <div class="logo">
+      🎵 Desi<span>Live</span>
+    </div>
+
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#playlist">Playlist</a>
+      <a href="#about">About</a>
+    </nav>
+
+  </header>
+
+
+  <!-- ================= HERO ================= -->
+
+  <section class="hero" id="home">
+
+    <div class="live-badge">
+      <span class="live-dot"></span>
+      LIVE MUSIC
+    </div>
+
+    <h1>
+      Nonstop Music<br>
+      <span>For Your Journey</span>
+    </h1>
+
+    <p>
+      Enjoy your favorite music anytime, anywhere.
+    </p>
+
+    <button class="main-play" id="mainPlay">
+      ▶ PLAY MUSIC
+    </button>
+
+  </section>
+
+
+  <!-- ================= PLAYER ================= -->
+
+  <section class="player">
+
+    <div class="album">
+
+      <img
+        id="cover"
+        src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=700&q=80"
+        alt="Album">
+
+    </div>
+
+
+    <div class="song-info">
+
+      <div class="now-playing">
+        🔴 NOW PLAYING
+      </div>
+
+      <h2 id="songTitle">
+        Welcome to Desi Live
+      </h2>
+
+      <p class="artist" id="artist">
+        Your Music Station
+      </p>
+
+
+      <div class="progress-area">
+
+        <span id="currentTime">
+          0:00
+        </span>
+
+        <input
+          type="range"
+          id="progress"
+          min="0"
+          max="100"
+          value="0">
+
+        <span id="duration">
+          0:00
+        </span>
+
+      </div>
+
+
+      <div class="controls">
+
+        <button id="prev">
+          ⏮
+        </button>
+
+        <button
+          class="play-button"
+          id="play">
+          ▶
+        </button>
+
+        <button id="next">
+          ⏭
+        </button>
+
+      </div>
+
+
+      <div class="volume">
+
+        🔊
+
+        <input
+          type="range"
+          id="volume"
+          min="0"
+          max="100"
+          value="80">
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- ================= PLAYLIST ================= -->
+
+  <section class="playlist" id="playlist">
+
+    <h2>
+      🎶 Music Playlist
+    </h2>
+
+    <div id="playlistContainer"></div>
+
+  </section>
+
+
+  <!-- ================= ABOUT ================= -->
+
+  <section class="about" id="about">
+
+    <h2>
+      About Desi Live
+    </h2>
+
+    <p>
+      A simple music station made for people who love
+      listening to music while travelling, working or relaxing.
+    </p>
+
+  </section>
+
+
+  <!-- ================= FOOTER ================= -->
+
+  <footer>
+
+    © 2026 Desi Live Music
+
+  </footer>
+
+
+  <!-- ================= YOUTUBE PLAYER ================= -->
+
+  <div id="youtube-player"></div>
+
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+
+
+  <script>
+
+    /* =====================================================
+       SONG DATA
+       ===================================================== */
+
+    const songs = [
+
+      {
+        title: "Your Song 1",
+        artist: "Artist Name",
+        youtubeId: "YOUR_YOUTUBE_ID_1",
+        cover:
+          "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=700&q=80"
+      },
+
+      {
+        title: "Your Song 2",
+        artist: "Artist Name",
+        youtubeId: "YOUR_YOUTUBE_ID_2",
+        cover:
+          "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=700&q=80"
+      },
+
+      {
+        title: "Your Song 3",
+        artist: "Artist Name",
+        youtubeId: "YOUR_YOUTUBE_ID_3",
+        cover:
+          "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=700&q=80"
+      },
+
+      {
+        title: "Your Song 4",
+        artist: "Artist Name",
+        youtubeId: "YOUR_YOUTUBE_ID_4",
+        cover:
+          "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=700&q=80"
+      }
+
+    ];
+
+
+    /* =====================================================
+       VARIABLES
+       ===================================================== */
+
+    let currentSong = 0;
+
+    let isPlaying = false;
+
+    let player;
+
+
+    /* =====================================================
+       YOUTUBE API
+       ===================================================== */
+
+    function onYouTubeIframeAPIReady() {
+
+      player = new YT.Player(
+        "youtube-player",
+        {
+
+          height: "1",
+
+          width: "1",
+
+          videoId: songs[currentSong].youtubeId,
+
+          playerVars: {
+
+            autoplay: 0,
+
+            controls: 0,
+
+            rel: 0
+
+          },
+
+          events: {
+
+            onReady: function () {
+
+              updateSong();
+
+            },
+
+
+            onStateChange: function (event) {
+
+              if (
+                event.data ===
+                YT.PlayerState.PLAYING
+              ) {
+
+                isPlaying = true;
+
+                updateButtons();
+
+              }
+
+
+              if (
+                event.data ===
+                YT.PlayerState.PAUSED
+              ) {
+
+                isPlaying = false;
+
+                updateButtons();
+
+              }
+
+
+              if (
+                event.data ===
+                YT.PlayerState.ENDED
+              ) {
+
+                nextSong();
+
+              }
+
+            }
+
+          }
+
+        }
+      );
+
+    }
+
+
+    /* =====================================================
+       UPDATE SONG
+       ===================================================== */
+
+    function updateSong() {
+
+      const song = songs[currentSong];
+
+      document.getElementById(
+        "songTitle"
+      ).textContent = song.title;
+
+
+      document.getElementById(
+        "artist"
+      ).textContent = song.artist;
+
+
+      document.getElementById(
+        "cover"
+      ).src = song.cover;
+
+
+      if (
+        player &&
+        player.loadVideoById
+      ) {
+
+        player.loadVideoById(
+          song.youtubeId
+        );
+
+      }
+
+
+      renderPlaylist();
+
+    }
+
+
+    /* =====================================================
+       PLAY
+       ===================================================== */
+
+    function playSong() {
+
+      if (!player) {
+
+        alert(
+          "Music player is loading..."
+        );
+
+        return;
+
+      }
+
+      player.playVideo();
+
+      isPlaying = true;
+
+      updateButtons();
+
+    }
+
+
+    /* =====================================================
+       PAUSE
+       ===================================================== */
+
+    function pauseSong() {
+
+      if (!player) return;
+
+      player.pauseVideo();
+
+      isPlaying = false;
+
+      updateButtons();
+
+    }
+
+
+    /* =====================================================
+       MAIN PLAY
+       ===================================================== */
+
+    document
+      .getElementById("mainPlay")
+      .addEventListener(
+        "click",
+        function () {
+
+          playSong();
+
+        }
+      );
+
+
+    /* =====================================================
+       PLAY / PAUSE
+       ===================================================== */
+
+    document
+      .getElementById("play")
+      .addEventListener(
+        "click",
+        function () {
+
+          if (isPlaying) {
+
+            pauseSong();
+
+          } else {
+
+            playSong();
+
+          }
+
+        }
+      );
+
+
+    /* =====================================================
+       NEXT
+       ===================================================== */
+
+    function nextSong() {
+
+      currentSong++;
+
+      if (
+        currentSong >= songs.length
+      ) {
+
+        currentSong = 0;
+
+      }
+
+      updateSong();
+
+      setTimeout(
+        function () {
+
+          playSong();
+
+        },
+        500
+      );
+
+    }
+
+
+    document
+      .getElementById("next")
+      .addEventListener(
+        "click",
+        nextSong
+      );
+
+
+    /* =====================================================
+       PREVIOUS
+       ===================================================== */
+
+    function previousSong() {
+
+      currentSong--;
+
+      if (currentSong < 0) {
+
+        currentSong =
+          songs.length - 1;
+
+      }
+
+      updateSong();
+
+      setTimeout(
+        function () {
+
+          playSong();
+
+        },
+        500
+      );
+
+    }
+
+
+    document
+      .getElementById("prev")
+      .addEventListener(
+        "click",
+        previousSong
+      );
+
+
+    /* =====================================================
+       VOLUME
+       ===================================================== */
+
+    document
+      .getElementById("volume")
+      .addEventListener(
+        "input",
+        function () {
+
+          if (player) {
+
+            player.setVolume(
+              this.value
+            );
+
+          }
+
+        }
+      );
+
+
+    /* =====================================================
+       PROGRESS BAR
+       ===================================================== */
+
+    setInterval(
+      function () {
+
+        if (
+          !player ||
+          !player.getDuration
+        ) {
+
+          return;
+
+        }
+
+
+        const duration =
+          player.getDuration();
+
+        const current =
+          player.getCurrentTime();
+
+
+        if (duration > 0) {
+
+          const percentage =
+            (current / duration) * 100;
+
+
+          document.getElementById(
+            "progress"
+          ).value = percentage;
+
+
+          document.getElementById(
+            "currentTime"
+          ).textContent =
+            formatTime(current);
+
+
+          document.getElementById(
+            "duration"
+          ).textContent =
+            formatTime(duration);
+
+        }
+
+      },
+      1000
+    );
+
+
+    /* =====================================================
+       SEEK
+       ===================================================== */
+
+    document
+      .getElementById("progress")
+      .addEventListener(
+        "input",
+        function () {
+
+          if (!player) return;
+
+
+          const duration =
+            player.getDuration();
+
+
+          const time =
+            (this.value / 100) *
+            duration;
+
+
+          player.seekTo(
+            time,
+            true
+          );
+
+        }
+      );
+
+
+    /* =====================================================
+       FORMAT TIME
+       ===================================================== */
+
+    function formatTime(seconds) {
+
+      seconds = Math.floor(seconds);
+
+      const minutes =
+        Math.floor(seconds / 60);
+
+      const remaining =
+        seconds % 60;
+
+
+      return (
+        minutes +
+        ":" +
+        remaining
+          .toString()
+          .padStart(2, "0")
+      );
+
+    }
+
+
+    /* =====================================================
+       BUTTON UPDATE
+       ===================================================== */
+
+    function updateButtons() {
+
+      document.getElementById(
+        "play"
+      ).textContent =
+        isPlaying ? "⏸" : "▶";
+
+    }
+
+
+    /* =====================================================
+       PLAYLIST
+       ===================================================== */
+
+    function renderPlaylist() {
+
+      const container =
+        document.getElementById(
+          "playlistContainer"
+        );
+
+
+      container.innerHTML = "";
+
+
+      songs.forEach(
+        function (song, index) {
+
+          const div =
+            document.createElement(
+              "div"
+            );
+
+
+          div.className =
+            "song";
+
+
+          if (
+            index === currentSong
+          ) {
+
+            div.classList.add(
+              "active"
+            );
+
+          }
+
+
+          div.innerHTML = `
+
+            <span class="song-number">
+              ${String(index + 1).padStart(2, "0")}
+            </span>
+
+            <img
+              src="${song.cover}"
+              alt="Song">
+
+            <div class="song-details">
+
+              <h3>
+                ${song.title}
+              </h3>
+
+              <p>
+                ${song.artist}
+              </p>
+
+            </div>
+
+            <span class="song-play">
+              ▶
+            </span>
+
+          `;
+
+
+          div.addEventListener(
+            "click",
+            function () {
+
+              currentSong = index;
+
+              updateSong();
+
+              setTimeout(
+                function () {
+
+                  playSong();
+
+                },
+                500
+              );
+
+            }
+          );
+
+
+          container.appendChild(div);
+
+        }
+      );
+
+    }
+
+
+  </script>
+
+</body>
+</html>
