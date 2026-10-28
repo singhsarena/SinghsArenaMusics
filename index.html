@@ -33,7 +33,7 @@
       justify-content: space-between;
       align-items: center;
 
-      background: rgba(5, 5, 5, 0.95);
+      background: rgba(5, 5, 5, 0.96);
       border-bottom: 1px solid #222;
 
       position: sticky;
@@ -42,8 +42,9 @@
     }
 
     .logo {
-      font-size: 25px;
+      font-size: 24px;
       font-weight: 800;
+      white-space: nowrap;
     }
 
     .logo span {
@@ -82,8 +83,8 @@
 
       background:
         linear-gradient(
-          rgba(0,0,0,0.55),
-          rgba(0,0,0,0.92)
+          rgba(0, 0, 0, 0.55),
+          rgba(0, 0, 0, 0.94)
         ),
         url("https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1800&q=80");
 
@@ -94,7 +95,7 @@
     .live-badge {
       padding: 9px 18px;
 
-      background: rgba(20,20,20,0.9);
+      background: rgba(20, 20, 20, 0.9);
 
       border: 1px solid #333;
 
@@ -166,7 +167,7 @@
 
     .main-play:hover {
       transform: scale(1.07);
-      box-shadow: 0 0 30px rgba(255,49,49,0.4);
+      box-shadow: 0 0 30px rgba(255, 49, 49, 0.4);
     }
 
     /* ================= PLAYER ================= */
@@ -200,6 +201,8 @@
       height: 290px;
 
       flex-shrink: 0;
+
+      position: relative;
     }
 
     .album img {
@@ -210,11 +213,28 @@
 
       border-radius: 20px;
 
-      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+
+      transition: 0.3s;
+    }
+
+    .album.playing img {
+      animation: rotateAlbum 10s linear infinite;
+    }
+
+    @keyframes rotateAlbum {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     .song-info {
       flex: 1;
+      min-width: 0;
     }
 
     .now-playing {
@@ -231,6 +251,8 @@
       font-size: 32px;
 
       margin-top: 15px;
+
+      word-break: break-word;
     }
 
     .artist {
@@ -287,10 +309,14 @@
       font-size: 22px;
 
       cursor: pointer;
+
+      transition: 0.2s;
     }
 
     .controls button:hover {
       color: #ff3131;
+
+      transform: scale(1.1);
     }
 
     .play-button {
@@ -304,6 +330,10 @@
       color: white !important;
 
       font-size: 22px !important;
+    }
+
+    .play-button:hover {
+      transform: scale(1.08) !important;
     }
 
     /* ================= VOLUME ================= */
@@ -366,6 +396,8 @@
 
     .song.active {
       border-color: #ff3131;
+
+      background: #161616;
     }
 
     .song-number {
@@ -387,10 +419,17 @@
 
     .song-details {
       flex: 1;
+      min-width: 0;
     }
 
     .song-details h3 {
       font-size: 15px;
+
+      white-space: nowrap;
+
+      overflow: hidden;
+
+      text-overflow: ellipsis;
     }
 
     .song-details p {
@@ -405,6 +444,10 @@
       color: #888;
 
       font-size: 18px;
+    }
+
+    .song.active .song-play {
+      color: #ff3131;
     }
 
     /* ================= ABOUT ================= */
@@ -439,22 +482,48 @@
       color: #666;
 
       margin-top: 80px;
+
+      line-height: 1.8;
     }
 
-    /* ================= HIDDEN YOUTUBE ================= */
+    footer a {
+      color: #ff3131;
+
+      text-decoration: none;
+    }
+
+    /* ================= YOUTUBE PLAYER ================= */
+
+    /*
+      Player ko bahut chhota nahi rakha.
+      Isse browser/YouTube ke playback restrictions
+      ke chances kam hote hain.
+    */
 
     #youtube-player {
       position: fixed;
 
-      width: 1px;
-      height: 1px;
+      width: 320px;
+      height: 180px;
+
+      right: 15px;
+      bottom: 15px;
 
       opacity: 0;
 
       pointer-events: none;
 
-      left: -100px;
-      bottom: -100px;
+      z-index: -1;
+    }
+
+    /* ================= LOADING ================= */
+
+    .loading {
+      color: #888;
+
+      text-align: center;
+
+      padding: 20px;
     }
 
     /* ================= MOBILE ================= */
@@ -463,6 +532,10 @@
 
       header {
         padding: 0 20px;
+      }
+
+      .logo {
+        font-size: 18px;
       }
 
       nav {
@@ -475,6 +548,10 @@
 
       .hero {
         min-height: 500px;
+      }
+
+      .hero h1 {
+        font-size: 42px;
       }
 
       .player {
@@ -515,6 +592,10 @@
         height: 48px;
       }
 
+      #youtube-player {
+        width: 1px;
+        height: 1px;
+      }
     }
   </style>
 </head>
@@ -568,12 +649,12 @@
 
   <section class="player">
 
-    <div class="album">
+    <div class="album" id="album">
 
       <img
         id="cover"
         src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=700&q=80"
-        alt="Album">
+        alt="Album Cover">
 
     </div>
 
@@ -615,17 +696,18 @@
 
       <div class="controls">
 
-        <button id="prev">
+        <button id="prev" title="Previous">
           ⏮
         </button>
 
         <button
           class="play-button"
-          id="play">
+          id="play"
+          title="Play / Pause">
           ▶
         </button>
 
-        <button id="next">
+        <button id="next" title="Next">
           ⏭
         </button>
 
@@ -658,7 +740,13 @@
       🎶 Music Playlist
     </h2>
 
-    <div id="playlistContainer"></div>
+    <div id="playlistContainer">
+
+      <div class="loading">
+        Loading playlist...
+      </div>
+
+    </div>
 
   </section>
 
@@ -684,10 +772,22 @@
   <footer>
 
     <p>© 2026 Singh's Arena Music</p>
+
     <p>Developed by Somesh Singh</p>
+
     <p>Powered by Singh's Arena Growth</p>
-    <p>(A Branch of Singh's Arena)
-    <p><a href="https://www.instagram.com/singhsarenagrowth/" target="_blank" rel="noopener"><b>Follow the company Instagram</b></a></p>
+
+    <p>(A Branch of Singh's Arena)</p>
+
+    <p>
+      <a
+        href="https://www.instagram.com/singhsarenagrowth/"
+        target="_blank"
+        rel="noopener">
+        <b>Follow the company Instagram</b>
+      </a>
+    </p>
+
   </footer>
 
 
@@ -696,6 +796,8 @@
   <div id="youtube-player"></div>
 
 
+  <!-- YouTube API -->
+
   <script src="https://www.youtube.com/iframe_api"></script>
 
 
@@ -703,38 +805,64 @@
 
     /* =====================================================
        SONG DATA
+
+       IMPORTANT:
+       youtubeId mein full YouTube URL bhi de sakte ho.
+
+       Example:
+       https://youtu.be/dm_4UsCaAjc?si=xxxx
+
+       Code automatically:
+       dm_4UsCaAjc
+       nikaal lega.
        ===================================================== */
+
 
     const songs = [
 
       {
         title: "Your Song 1",
         artist: "Artist Name",
-        youtubeId: "https://youtu.be/dm_4UsCaAjc?si=6dMb28GnVUUIx7z5",
+
+        youtubeId:
+          "https://youtu.be/dm_4UsCaAjc?si=6dMb28GnVUUIx7z5",
+
         cover:
           "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=700&q=80"
       },
 
+
       {
         title: "Your Song 2",
         artist: "Artist Name",
-        youtubeId: "YOUR_YOUTUBE_ID_2",
+
+        youtubeId:
+          "YOUR_YOUTUBE_LINK_2",
+
         cover:
           "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=700&q=80"
       },
 
+
       {
         title: "Your Song 3",
         artist: "Artist Name",
-        youtubeId: "YOUR_YOUTUBE_ID_3",
+
+        youtubeId:
+          "YOUR_YOUTUBE_LINK_3",
+
         cover:
           "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=700&q=80"
       },
 
+
       {
         title: "Your Song 4",
         artist: "Artist Name",
-        youtubeId: "YOUR_YOUTUBE_ID_4",
+
+        youtubeId:
+          "YOUR_YOUTUBE_LINK_4",
+
         cover:
           "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=700&q=80"
       }
@@ -750,122 +878,294 @@
 
     let isPlaying = false;
 
-    let player;
+    let player = null;
+
+    let playerReady = false;
 
 
     /* =====================================================
-       YOUTUBE API
+       GET YOUTUBE VIDEO ID
+
+       Ye function:
+       1. Full YouTube URL
+       2. youtu.be URL
+       3. youtube.com/watch?v=
+       4. Direct video ID
+
+       sab handle karega.
        ===================================================== */
 
-    function onYouTubeIframeAPIReady() {
+    function getYouTubeId(value) {
 
-      player = new YT.Player(
-        "youtube-player",
-        {
+      if (!value) {
+        return null;
+      }
 
-          height: "1",
-
-          width: "1",
-
-          videoId: songs[currentSong].youtubeId,
-
-          playerVars: {
-
-            autoplay: 0,
-
-            controls: 0,
-
-            rel: 0
-
-          },
-
-          events: {
-
-            onReady: function () {
-
-              updateSong();
-
-            },
+      value = value.trim();
 
 
-            onStateChange: function (event) {
+      /*
+        Agar direct ID hai
+      */
 
-              if (
-                event.data ===
-                YT.PlayerState.PLAYING
-              ) {
+      if (
+        /^[a-zA-Z0-9_-]{11}$/.test(value)
+      ) {
 
-                isPlaying = true;
+        return value;
 
-                updateButtons();
-
-              }
-
-
-              if (
-                event.data ===
-                YT.PlayerState.PAUSED
-              ) {
-
-                isPlaying = false;
-
-                updateButtons();
-
-              }
+      }
 
 
-              if (
-                event.data ===
-                YT.PlayerState.ENDED
-              ) {
+      /*
+        youtube.com/watch?v=
+      */
 
-                nextSong();
+      try {
 
-              }
+        const url =
+          new URL(value);
 
-            }
+
+        if (
+          url.hostname.includes(
+            "youtube.com"
+          )
+        ) {
+
+          const id =
+            url.searchParams.get("v");
+
+          if (id) {
+
+            return id;
 
           }
 
         }
-      );
+
+
+        /*
+          youtu.be/VIDEO_ID
+        */
+
+        if (
+          url.hostname.includes(
+            "youtu.be"
+          )
+        ) {
+
+          return url.pathname
+            .replace("/", "")
+            .substring(0, 11);
+
+        }
+
+
+        /*
+          youtube.com/embed/VIDEO_ID
+        */
+
+        if (
+          url.pathname.includes(
+            "/embed/"
+          )
+        ) {
+
+          return url.pathname
+            .split("/embed/")[1]
+            .substring(0, 11);
+
+        }
+
+      }
+
+      catch (error) {
+
+        console.log(
+          "Invalid YouTube URL:",
+          value
+        );
+
+      }
+
+
+      return null;
 
     }
 
 
     /* =====================================================
-       UPDATE SONG
+       YOUTUBE API READY
+       ===================================================== */
+
+    function onYouTubeIframeAPIReady() {
+
+      const firstVideo =
+        getYouTubeId(
+          songs[0].youtubeId
+        );
+
+
+      player =
+        new YT.Player(
+          "youtube-player",
+          {
+
+            width: "320",
+
+            height: "180",
+
+            videoId:
+              firstVideo || "",
+
+
+            playerVars: {
+
+              autoplay: 0,
+
+              controls: 0,
+
+              rel: 0,
+
+              modestbranding: 1,
+
+              playsinline: 1
+
+            },
+
+
+            events: {
+
+              onReady:
+                function (event) {
+
+                  playerReady = true;
+
+                  event.target.setVolume(80);
+
+                  updateSong();
+
+                  renderPlaylist();
+
+                },
+
+
+              onStateChange:
+                function (event) {
+
+                  /*
+                    PLAYING
+                  */
+
+                  if (
+                    event.data ===
+                    YT.PlayerState.PLAYING
+                  ) {
+
+                    isPlaying = true;
+
+                    updateButtons();
+
+                    document
+                      .getElementById(
+                        "album"
+                      )
+                      .classList.add(
+                        "playing"
+                      );
+
+                  }
+
+
+                  /*
+                    PAUSED
+                  */
+
+                  if (
+                    event.data ===
+                    YT.PlayerState.PAUSED
+                  ) {
+
+                    isPlaying = false;
+
+                    updateButtons();
+
+                    document
+                      .getElementById(
+                        "album"
+                      )
+                      .classList.remove(
+                        "playing"
+                      );
+
+                  }
+
+
+                  /*
+                    ENDED
+                  */
+
+                  if (
+                    event.data ===
+                    YT.PlayerState.ENDED
+                  ) {
+
+                    nextSong();
+
+                  }
+
+                },
+
+
+              onError:
+                function (event) {
+
+                  console.log(
+                    "YouTube Player Error:",
+                    event.data
+                  );
+
+                  alert(
+                    "Ye YouTube video play nahi ho sakta. Dusra video try karo."
+                  );
+
+                }
+
+            }
+
+          }
+        );
+
+    }
+
+
+    /* =====================================================
+       UPDATE SONG INFORMATION
        ===================================================== */
 
     function updateSong() {
 
-      const song = songs[currentSong];
+      const song =
+        songs[currentSong];
+
 
       document.getElementById(
         "songTitle"
-      ).textContent = song.title;
+      ).textContent =
+        song.title;
 
 
       document.getElementById(
         "artist"
-      ).textContent = song.artist;
+      ).textContent =
+        song.artist;
 
 
       document.getElementById(
         "cover"
-      ).src = song.cover;
-
-
-      if (
-        player &&
-        player.loadVideoById
-      ) {
-
-        player.loadVideoById(
-          song.youtubeId
-        );
-
-      }
+      ).src =
+        song.cover;
 
 
       renderPlaylist();
@@ -874,20 +1174,123 @@
 
 
     /* =====================================================
-       PLAY
+       LOAD SONG
        ===================================================== */
 
-    function playSong() {
+    function loadSong(
+      index,
+      autoPlay = false
+    ) {
 
-      if (!player) {
+      if (
+        index < 0 ||
+        index >= songs.length
+      ) {
+
+        return;
+
+      }
+
+
+      currentSong = index;
+
+
+      const song =
+        songs[currentSong];
+
+
+      const videoId =
+        getYouTubeId(
+          song.youtubeId
+        );
+
+
+      if (!videoId) {
 
         alert(
-          "Music player is loading..."
+          "YouTube link/ID galat hai:\n\n" +
+          song.youtubeId
         );
 
         return;
 
       }
+
+
+      updateSong();
+
+
+      if (
+        playerReady &&
+        player
+      ) {
+
+        if (autoPlay) {
+
+          player.loadVideoById(
+            videoId
+          );
+
+        }
+
+        else {
+
+          player.cueVideoById(
+            videoId
+          );
+
+        }
+
+      }
+
+    }
+
+
+    /* =====================================================
+       PLAY SONG
+       ===================================================== */
+
+    function playSong() {
+
+      if (
+        !playerReady ||
+        !player
+      ) {
+
+        alert(
+          "Music player abhi loading hai. 2-3 seconds baad PLAY dabao."
+        );
+
+        return;
+
+      }
+
+
+      const song =
+        songs[currentSong];
+
+
+      const videoId =
+        getYouTubeId(
+          song.youtubeId
+        );
+
+
+      if (!videoId) {
+
+        alert(
+          "Is song ka YouTube link valid nahi hai."
+        );
+
+        return;
+
+      }
+
+
+      /*
+        Agar current player mein
+        same video loaded hai
+      */
 
       player.playVideo();
 
@@ -904,7 +1307,15 @@
 
     function pauseSong() {
 
-      if (!player) return;
+      if (
+        !playerReady ||
+        !player
+      ) {
+
+        return;
+
+      }
+
 
       player.pauseVideo();
 
@@ -916,7 +1327,7 @@
 
 
     /* =====================================================
-       MAIN PLAY
+       MAIN HERO PLAY
        ===================================================== */
 
     document
@@ -932,7 +1343,7 @@
 
 
     /* =====================================================
-       PLAY / PAUSE
+       PLAY / PAUSE BUTTON
        ===================================================== */
 
     document
@@ -945,7 +1356,9 @@
 
             pauseSong();
 
-          } else {
+          }
+
+          else {
 
             playSong();
 
@@ -956,7 +1369,7 @@
 
 
     /* =====================================================
-       NEXT
+       NEXT SONG
        ===================================================== */
 
     function nextSong() {
@@ -964,22 +1377,18 @@
       currentSong++;
 
       if (
-        currentSong >= songs.length
+        currentSong >=
+        songs.length
       ) {
 
         currentSong = 0;
 
       }
 
-      updateSong();
 
-      setTimeout(
-        function () {
-
-          playSong();
-
-        },
-        500
+      loadSong(
+        currentSong,
+        true
       );
 
     }
@@ -994,29 +1403,26 @@
 
 
     /* =====================================================
-       PREVIOUS
+       PREVIOUS SONG
        ===================================================== */
 
     function previousSong() {
 
       currentSong--;
 
-      if (currentSong < 0) {
+      if (
+        currentSong < 0
+      ) {
 
         currentSong =
           songs.length - 1;
 
       }
 
-      updateSong();
 
-      setTimeout(
-        function () {
-
-          playSong();
-
-        },
-        500
+      loadSong(
+        currentSong,
+        true
       );
 
     }
@@ -1040,10 +1446,13 @@
         "input",
         function () {
 
-          if (player) {
+          if (
+            playerReady &&
+            player
+          ) {
 
             player.setVolume(
-              this.value
+              Number(this.value)
             );
 
           }
@@ -1053,13 +1462,14 @@
 
 
     /* =====================================================
-       PROGRESS BAR
+       PROGRESS UPDATE
        ===================================================== */
 
     setInterval(
       function () {
 
         if (
+          !playerReady ||
           !player ||
           !player.getDuration
         ) {
@@ -1072,19 +1482,25 @@
         const duration =
           player.getDuration();
 
+
         const current =
           player.getCurrentTime();
 
 
-        if (duration > 0) {
+        if (
+          duration &&
+          duration > 0
+        ) {
 
           const percentage =
-            (current / duration) * 100;
+            (current / duration) *
+            100;
 
 
           document.getElementById(
             "progress"
-          ).value = percentage;
+          ).value =
+            percentage;
 
 
           document.getElementById(
@@ -1101,7 +1517,7 @@
         }
 
       },
-      1000
+      500
     );
 
 
@@ -1115,15 +1531,32 @@
         "input",
         function () {
 
-          if (!player) return;
+          if (
+            !playerReady ||
+            !player
+          ) {
+
+            return;
+
+          }
 
 
           const duration =
             player.getDuration();
 
 
+          if (
+            !duration ||
+            duration <= 0
+          ) {
+
+            return;
+
+          }
+
+
           const time =
-            (this.value / 100) *
+            (Number(this.value) / 100) *
             duration;
 
 
@@ -1142,10 +1575,25 @@
 
     function formatTime(seconds) {
 
-      seconds = Math.floor(seconds);
+      if (
+        !seconds ||
+        isNaN(seconds)
+      ) {
+
+        return "0:00";
+
+      }
+
+
+      seconds =
+        Math.floor(seconds);
+
 
       const minutes =
-        Math.floor(seconds / 60);
+        Math.floor(
+          seconds / 60
+        );
+
 
       const remaining =
         seconds % 60;
@@ -1163,21 +1611,39 @@
 
 
     /* =====================================================
-       BUTTON UPDATE
+       UPDATE PLAY BUTTON
        ===================================================== */
 
     function updateButtons() {
 
-      document.getElementById(
-        "play"
-      ).textContent =
-        isPlaying ? "⏸" : "▶";
+      const button =
+        document.getElementById(
+          "play"
+        );
+
+
+      button.textContent =
+        isPlaying
+          ? "⏸"
+          : "▶";
+
+
+      const mainButton =
+        document.getElementById(
+          "mainPlay"
+        );
+
+
+      mainButton.textContent =
+        isPlaying
+          ? "⏸ PAUSE MUSIC"
+          : "▶ PLAY MUSIC";
 
     }
 
 
     /* =====================================================
-       PLAYLIST
+       RENDER PLAYLIST
        ===================================================== */
 
     function renderPlaylist() {
@@ -1223,7 +1689,7 @@
 
             <img
               src="${song.cover}"
-              alt="Song">
+              alt="${song.title}">
 
             <div class="song-details">
 
@@ -1248,30 +1714,30 @@
             "click",
             function () {
 
-              currentSong = index;
-
-              updateSong();
-
-              setTimeout(
-                function () {
-
-                  playSong();
-
-                },
-                500
+              loadSong(
+                index,
+                true
               );
 
             }
           );
 
 
-          container.appendChild(div);
+          container.appendChild(
+            div
+          );
 
         }
       );
 
     }
 
+
+    /* =====================================================
+       INITIAL PLAYLIST
+       ===================================================== */
+
+    renderPlaylist();
 
   </script>
 
